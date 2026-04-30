@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Local development
+node_modules/
+*.log
+.env
+.env.local
+
+# Test artifacts (Phase 4 will add tests/, but local runs go here)
+/tmp/
+*.pid
