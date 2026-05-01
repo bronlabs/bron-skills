@@ -69,10 +69,10 @@ State-changing operations (approve / decline / cancel / sign / send) require hum
 
 | Skill | Min `bron-cli` |
 |---|---|
-| `bron-tx-send` | `v0.3.6` |
-| `bron-balances-read` | `v0.3.6` |
-| `bron-address-book` | `v0.3.6` |
-| `bron-tx-subscribe` | `v0.3.6` |
+| `bron-tx-send` | `v0.3.7` |
+| `bron-balances-read` | `v0.3.7` |
+| `bron-address-book` | `v0.3.7` |
+| `bron-tx-subscribe` | `v0.3.7` |
 
 Skills declare their floor in `metadata.bron-cli-min`. Bumps to that floor are noted in [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -83,7 +83,7 @@ Semver on the repo. New skills bump minor; backwards-incompatible content change
 ## Related
 
 - [`bron-cli`](https://github.com/bronlabs/bron-cli) — the CLI these skills wrap.
-- [`bron-sdk-go`](https://github.com/bronlabs/bron-sdk-go) — Go SDK; the upcoming MCP server uses this directly.
+- [`bron-sdk-go`](https://github.com/bronlabs/bron-sdk-go) — Go SDK; powers the `bron mcp` MCP server (`bron-cli ≥ 0.3.7`).
 - [Bron developer docs](https://developer.bron.org) — API + CLI + SDK reference.
 
 ## Contributing

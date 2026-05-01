@@ -1,27 +1,59 @@
 ---
 name: bron-balances-read
 description: |
-  Read account balances on the Bron treasury platform via the bron CLI. Use when the
-  user asks "what's in account X", "show me balances", "what's our USD position",
+  Read account balances on the Bron treasury platform. Use when the user asks
+  "what's in account X", "show me balances", "what's our USD position",
   "list all non-zero positions", etc. Read-only — no state changes, no
   confirmation needed. Knows how to project to specific columns, fold USD totals
   in via `--embed prices`, and pipe to jq for custom aggregations.
 license: MIT
 compatibility: |
   Requires bron-cli >= 0.3.6 in PATH and an active profile with API key
-  authentication.
-allowed-tools: Bash(bron balances:*) Bash(bron accounts:*) Bash(bron assets:*) Bash(bron --schema:*) Read
+  authentication. The `bron mcp` subcommand exposes typed MCP tools — prefer
+  those over bash CLI when the Claude Code session has the `bron` MCP server
+  registered.
+allowed-tools: |
+  Bash(bron balances:*) Bash(bron accounts:*) Bash(bron assets:*) Bash(bron --schema:*) Read
+  mcp__bron__bron_balances_list mcp__bron__bron_balances_get
+  mcp__bron__bron_accounts_list mcp__bron__bron_accounts_get
+  mcp__bron__bron_assets_list mcp__bron__bron_assets_get mcp__bron__bron_assets_prices
 metadata:
   vendor: bronlabs
-  version: "0.1.0"
-  bron-cli-min: "0.3.6"
+  version: "0.2.1"
+  bron-cli-min: "0.3.7"
 ---
 
 # Bron balances: read
 
 Read-only skill. No state changes; safe to invoke without confirmation.
 
-## Default flow
+## Pick your surface — once, on the first turn
+
+Two surfaces drive the same reads: **MCP** (typed tools `mcp__bron__bron_*`) and **CLI** (`bash bron …`). They wrap the same backend.
+
+| Signal | Mode | Use |
+|---|---|---|
+| `mcp__bron__bron_balances_list` etc. listed | MCP available | Use MCP for all reads. |
+| `bash which bron` returns a path | CLI available | Falls back to bash. |
+| Both | Hybrid | Use MCP for reads — typed inputs, structured errors, no shell quoting. |
+
+**Don't switch surfaces mid-session for the same workflow.** Pick once and stay there. The most common drift is: agent reads via MCP, then "for some reason" jumps to bash for a follow-up filter. That's a bug — the same MCP tool with different arguments will work. See the `bron-tx-send` skill for the full mode picker.
+
+## Default flow — MCP
+
+```text
+mcp__bron__bron_balances_list { nonEmpty: true, limit: 100 }
+```
+
+Returns the full `Balances` envelope. Pass `embed: "prices"` to attach USD price + USD value per balance under `_embedded`:
+
+```text
+mcp__bron__bron_balances_list { nonEmpty: true, limit: 100, embed: "prices" }
+```
+
+`embed` accepts a comma-separated list of tokens — currently only `prices` is supported. The MCP server does the same CLI-side join the bash CLI does (one extra REST call to `/dictionary/asset-market-prices`).
+
+## Default flow — CLI fallback
 
 ```bash
 # Every non-empty balance in the active workspace.

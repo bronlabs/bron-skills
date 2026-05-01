@@ -4,11 +4,18 @@ Project memory for any AI coding agent working in a repo that uses the Bron CLI.
 
 Bron is a non-custodial treasury management platform. The CLI is `bron`. It's a single Go binary, regenerated from the OpenAPI spec on every API release; every endpoint and every request/response field is reachable from the shell, 1:1 with the spec.
 
-## When to use bron CLI
+## Two surfaces — pick one per session
+
+- **`bron mcp` (MCP server)** — typed tool calls (`bron_tx_list`, `bron_tx_withdrawal`, `bron_tx_wait_for_state`, …) without shell quoting. Same auth, same data path, structured errors. Right when the agent host speaks MCP (Claude Code, Cursor, Cline, Claude Desktop, ChatGPT, …). Register once: `claude mcp add bron -- bron mcp`.
+- **`bash bron <verb>` (CLI)** — pipeable, JSONL output, stable exit codes. Right when there's no MCP host, when you need `--query`/`--columns` projection, or when the workflow uses shell tooling (`jq`, `xargs`, etc.).
+
+Pick once on the first turn and stay there for the session. Mixing surfaces mid-flow is a common source of confusion (the same backend operation reached two different ways tracks badly in conversation context).
+
+## General rules (both surfaces)
 
 - **Always prefer `bron` over raw `curl`/JWT signing** for any Bron API call. The CLI handles signing, retries, error envelope parsing, output formatting, and the WebSocket subscribe transport. Going around it is brittle.
 - **Use the bron-sdk-go / sdk-js / sdk-python in code** if you're writing a long-lived service, not invoking commands ad-hoc. The CLI is for one-shots, scripts, and agent-driven workflows.
-- **Do not** invoke private/internal endpoints. The public surface is what `bron --schema` lists.
+- **Do not** invoke private/internal endpoints. The public surface is what `bron --schema` (or MCP `tools/list`) reflects.
 
 ## Discovery
 
@@ -17,7 +24,7 @@ bron --help                         # human-readable: examples + flags + every r
 bron <resource> <verb> --help       # per-command flags + body shape + responses
 bron --schema                       # full CLI as one OpenAPI 3.1 document — agent's preferred entry point
 bron <resource> <verb> --schema     # single-command fragment
-bron help <topic>                   # signing | profiles | output | body | errors | idempotency | agents
+bron help <topic>                   # signing | profiles | output | body | errors | idempotency | agents | mcp
 ```
 
 `--schema` is the contract you can rely on across `0.x`. Branch on it for tool discovery, not on `--help` text.
@@ -121,7 +128,8 @@ Combine with `--columns` to project just what you need (works for json/yaml/json
 
 The active profile (`bron config show`) holds the JWK key file path, workspace ID, and base URL. For CI / one-off agent runs, prefer env vars:
 
-- `BRON_API_KEY_FILE` — path to the JWK private key
+- `BRON_API_KEY` — raw JWK bytes (preferred for secret stores: `BRON_API_KEY=$(op read 'op://Personal/Bron/private-jwk') bron tx list`). The CLI strips the var from its environment after reading, so child processes don't inherit it.
+- `BRON_API_KEY_FILE` — path to the JWK private key (use when you want a managed file on disk).
 - `BRON_WORKSPACE_ID` — workspace ID
 - `BRON_BASE_URL` — override the default API host (rarely needed)
 - `BRON_PROFILE` — pick a different named profile from the config

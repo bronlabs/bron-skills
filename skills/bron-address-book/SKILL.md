@@ -1,28 +1,49 @@
 ---
 name: bron-address-book
 description: |
-  Manage saved addresses (the address book) on the Bron treasury platform via the
-  bron CLI. Use when the user wants to list saved addresses, save a new one, delete
+  Manage saved addresses (the address book) on the Bron treasury platform.
+  Use when the user wants to list saved addresses, save a new one, delete
   one, or look up a record id to use as `toAddressBookRecordId` in a withdrawal.
   State-changing actions (create, delete) require human-in-the-loop confirmation.
 license: MIT
 compatibility: |
   Requires bron-cli >= 0.3.6 in PATH and an active profile with API key
-  authentication.
-allowed-tools: Bash(bron address-book:*) Bash(bron --schema:*) Read
+  authentication. The `bron mcp` subcommand exposes typed MCP tools — prefer
+  those over bash CLI when the Claude Code session has the `bron` MCP server
+  registered.
+allowed-tools: |
+  Bash(bron address-book:*) Bash(bron --schema:*) Read
+  mcp__bron__bron_address_book_list mcp__bron__bron_address_book_get
+  mcp__bron__bron_address_book_create mcp__bron__bron_address_book_delete
 metadata:
   vendor: bronlabs
-  version: "0.1.0"
-  bron-cli-min: "0.3.6"
+  version: "0.2.1"
+  bron-cli-min: "0.3.7"
 ---
 
 # Bron address book
 
-Why use this skill: a workspace's address book is the trusted recipient list. Bron validates withdrawals against it — sending to `params.toAddressBookRecordId=<id>` is safer and more readable than passing a raw `params.toAddress`.
+Why use this skill: a workspace's address book is the trusted recipient list. Bron validates withdrawals against it — sending to `toAddressBookRecordId=<id>` is safer and more readable than passing a raw `toAddress`.
 
 The book is `(workspace, networkId, address)`-keyed; one record per (network, address) tuple, scoped to the workspace.
 
-## List addresses
+## Pick your surface — once, on the first turn
+
+Two surfaces drive the same operations: the typed MCP tools (`mcp__bron__bron_address_book_*`) and the CLI (`bron address-book *`). Pick one and stay there for the session — see the `bron-tx-send` skill's "Pick your surface" section for the full decision matrix. Short version:
+
+- If `mcp__bron__bron_address_book_*` tools are available → use MCP for read + create + delete.
+- If only CLI in PATH → use bash for everything.
+- Don't randomly mix: if you started a flow with MCP, finish it with MCP.
+
+## List addresses — MCP
+
+```text
+mcp__bron__bron_address_book_list { networkIds: "ETH,TRX" }
+```
+
+Returns the `AddressBookRecords` envelope. Filter on `recordType` (`address` for raw on-chain, `tag` for Bron internal routing).
+
+## List addresses — CLI fallback
 
 ```bash
 # Every record on every network in the workspace.
@@ -40,11 +61,24 @@ bron address-book list --networkIds ETH --output jsonl \
   | jq -r 'select(.name == "Alice") | .recordId'
 ```
 
-Useful filters: `--networkIds`, `--recordType` (`address` for raw on-chain, `tag` for Bron internal routing).
+Useful filters: `--networkIds`, `--recordType`.
 
 ## Create an entry
 
 State-changing — surface to the user and wait for explicit OK before invoking.
+
+### MCP
+
+```text
+mcp__bron__bron_address_book_create {
+  name:      "Alice (vendor)",
+  address:   "0xabcd…",
+  networkId: "ETH",
+  memo:      "primary payout address"
+}
+```
+
+### CLI fallback
 
 ```bash
 bron address-book create \
@@ -62,9 +96,11 @@ After creation, retrieve the new `recordId` from the response — this is what y
 
 State-changing and irreversible. Surface, confirm, run.
 
-```bash
-bron address-book delete <recordId>
+```text
+mcp__bron__bron_address_book_delete { recordId: "<recordId>" }
 ```
+
+CLI fallback: `bron address-book delete <recordId>`.
 
 If the record is referenced by any pending transaction, deletion fails with a `400` and a `code:` indicating the conflict; resolve those first.
 
@@ -72,16 +108,31 @@ If the record is referenced by any pending transaction, deletion fails with a `4
 
 Standard pattern — the user gives you a name or address, you confirm and turn it into a `recordId`:
 
-```bash
+```text
 # User: "send 100 USDC to Alice on Ethereum"
-# Step 1: find Alice.
-RECORD_ID=$(bron address-book list --networkIds ETH --output jsonl \
-              | jq -r 'select(.name == "Alice") | .recordId')
+# Step 1: find Alice via MCP.
+mcp__bron__bron_address_book_list { networkIds: "ETH" }
+# → scan the response for the record where name == "Alice"; pluck recordId
 
 # Step 2: if not found, ask the user to add her or supply a raw address.
-[ -z "$RECORD_ID" ] && echo "Alice not in address book — please add or supply address" && exit 1
 
 # Step 3: use the recordId in the withdrawal (skill: bron-tx-send).
+mcp__bron__bron_tx_withdrawal {
+  externalId: "task-2026-05-01-1430",
+  accountId:  "<sourceAccountId>",
+  amount:     "100",
+  assetId:    "<usdc-on-eth>",
+  networkId:  "ETH",
+  toAddressBookRecordId: "<recordId>"
+}
+```
+
+CLI-shaped equivalent of the same flow:
+
+```bash
+RECORD_ID=$(bron address-book list --networkIds ETH --output jsonl \
+              | jq -r 'select(.name == "Alice") | .recordId')
+[ -z "$RECORD_ID" ] && echo "Alice not in address book — please add or supply address" && exit 1
 bron tx withdrawal \
   --externalId "task-$(date +%s)" \
   --accountId <a> \
