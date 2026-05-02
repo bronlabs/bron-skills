@@ -24,6 +24,15 @@ git clone https://github.com/bronlabs/bron-skills ~/src/bron-skills
 
 This symlinks every skill in `skills/` into `~/.claude/skills/`. Restart Claude Code (or run `/skills reload`) and the skills appear under `bron-*`.
 
+### Codex
+
+```bash
+git clone https://github.com/bronlabs/bron-skills ~/src/bron-skills
+~/src/bron-skills/install/install-codex.sh
+```
+
+Symlinks every skill into `~/.codex/skills/` and `AGENTS.md` into `~/.codex/AGENTS.md`. Restart Codex to pick them up. Override the install root with `CODEX_HOME=...`.
+
 ### Anthropic plugin marketplace (coming soon)
 
 ```
@@ -32,7 +41,7 @@ This symlinks every skill in `skills/` into `~/.claude/skills/`. Restart Claude 
 
 ### Other agents
 
-Phase 1 of this repo ships Claude Code skills only. Cursor (MDC), GitHub Copilot, and Aider mirrors are on the roadmap; a typed [MCP server](https://modelcontextprotocol.io) wrapping `bron-sdk-go` ships today as `bron mcp` — see the [CLI MCP docs](https://developer.bron.org/sdk/cli/mcp).
+Cursor (MDC), GitHub Copilot, and Aider mirrors are on the roadmap; a typed [MCP server](https://modelcontextprotocol.io) wrapping `bron-sdk-go` ships today as `bron mcp` — see the [CLI MCP docs](https://developer.bron.org/sdk/cli/mcp).
 
 For now, agents that read [`AGENTS.md`](AGENTS.md) natively (Codex, Cursor, Copilot, Aider, …) get a usable subset by dropping a copy of this repo's `AGENTS.md` into a project that uses `bron`.
 
@@ -41,6 +50,7 @@ For now, agents that read [`AGENTS.md`](AGENTS.md) natively (Codex, Cursor, Copi
 | Skill | When to use it |
 |---|---|
 | [`bron-tx-send`](skills/bron-tx-send/) | Create / approve / decline / cancel transactions. Includes idempotency contract, dry-run pre-flight, and human-in-the-loop guardrails for state-changing ops. |
+| [`bron-tx-read`](skills/bron-tx-read/) | List, get, and analyse transactions. Teaches the saga-vs-events mental model, `--embed events` for real money movement, and ready-made `jq` aggregations. |
 | [`bron-balances-read`](skills/bron-balances-read/) | List account balances, project to specific columns, fold USD totals in via `--embed prices`. |
 | [`bron-address-book`](skills/bron-address-book/) | Manage saved addresses; route withdrawals via `toAddressBookRecordId` instead of raw addresses. |
 | [`bron-tx-subscribe`](skills/bron-tx-subscribe/) | Stream live transaction updates over WebSocket. JSONL pipelines, wait-for-completion patterns, auto-reconnect contract. |
@@ -70,6 +80,7 @@ State-changing operations (approve / decline / cancel / sign / send) require hum
 | Skill | Min `bron-cli` |
 |---|---|
 | `bron-tx-send` | `v0.3.7` |
+| `bron-tx-read` | `v0.3.7` |
 | `bron-balances-read` | `v0.3.7` |
 | `bron-address-book` | `v0.3.7` |
 | `bron-tx-subscribe` | `v0.3.7` |
