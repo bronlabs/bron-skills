@@ -67,7 +67,7 @@ The bad pattern (don't do this):
 
 The good pattern:
 ```
-1. Bash run_in_background: bron tx subscribe --no-history > /tmp/bron-tx-stream.log 2>&1
+1. Bash run_in_background: bron tx subscribe > /tmp/bron-tx-stream.log 2>&1
 2. Capture the bash_id.
 3. Use the Monitor tool with that bash_id — every new stdout line wakes you.
 4. Approve the batch via `bron_tx_approve`. Monitor wakes you for each transition,
@@ -83,7 +83,7 @@ For a **single** tx, skip the subscription entirely and use `bron_tx_wait_for_st
 ```text
 Step 1 — launch in background:
   Bash {
-    command: "bron tx subscribe --no-history --output jsonl > /tmp/bron-tx-stream.log 2>&1",
+    command: "bron tx subscribe --output jsonl > /tmp/bron-tx-stream.log 2>&1",
     run_in_background: true,
     description: "Start workspace-wide tx subscription"
   }
@@ -118,31 +118,19 @@ The clean pattern in any tx-related session:
    future tx in the same session).
 ```
 
-Why this order matters: `--no-history` on subscribe means the snapshot is empty. If you submit a tx and *then* subscribe, you may miss the `signing-required` frame that the server emitted between submission and subscription start. Subscribing first guarantees you see every frame.
+Why this order matters: subscribe is live-only by default — the snapshot is empty. If you submit a tx and *then* subscribe, you may miss the `signing-required` frame that the server emitted between submission and subscription start. Subscribing first guarantees you see every frame.
 
 ## Mental model: GET extended
 
-A subscription is "GET extended": same query as `bron tx list`, the server replays the historical match as the **first frame**, then keeps the connection open and pushes each subsequent change as another frame. Output is always JSONL — pipe to `jq` or read line-by-line.
+A subscription is "GET extended": same query as `bron tx list`, the server keeps the connection open and pushes each transaction state change as a JSONL frame. Output is always JSONL — pipe to `jq` or read line-by-line.
 
 ```bash
 bron tx subscribe --transactionStatuses signing-required,waiting-approval
 ```
 
-You'll see:
-1. A snapshot frame for every currently-matching transaction (could be 0, could be 100s).
-2. One frame per state transition after that, indefinitely.
+You'll see one frame per state transition, indefinitely. **No snapshot replay on connect** — that's the right default for agent flows where the snapshot would just wake Monitor on stale data.
 
-For agent / Monitor flows, `--no-history` is almost always right — the snapshot is replay noise that Monitor would still wake the agent on.
-
-## Skipping the snapshot — the agent default
-
-```bash
-bron tx subscribe --no-history --output jsonl > /tmp/bron-tx-stream.log 2>&1
-```
-
-`--no-history` sends `limit=0` to the server: snapshot is empty, live stream starts fresh. **This is the default for any agent-driven session** — saves token budget and lets the user / Monitor see only meaningful transitions.
-
-If you also want a one-time snapshot of pending work for context, do it as a separate read call (`bron_tx_list` MCP tool, or `bron tx list --transactionStatuses signing-required,waiting-approval`) and *then* start the subscribe — never rely on the subscribe's history frame in agent flows.
+If you genuinely need the snapshot too (e.g. an audit script that needs "everything currently matching + live tail in one command"), pass `--with-history`. That's almost never the right call in agent flows: do a separate `bron_tx_list` MCP read (or `bron tx list --transactionStatuses signing-required`) for context, *then* start the live-only subscribe.
 
 ## Filters
 
@@ -151,11 +139,11 @@ If you also want a one-time snapshot of pending work for context, do it as a sep
 | `--transactionStatuses <list>` | comma-separated statuses (`signing-required,signed,broadcasted,…`) |
 | `--transactionTypes <list>` | comma-separated types (`withdrawal,bridge,allowance,…`) |
 | `--accountId <id>` | scope to one source account |
-| `--no-history` | skip the initial snapshot — **agent default** |
+| `--with-history` | also replay every currently-matching transaction on connect — **rare in agent flows; off by default** |
 
-Filters apply to **both** the snapshot and the live stream — once subscribed, the server only pushes updates that match.
+Filters apply to the live stream (and to the optional `--with-history` replay) — once subscribed, the server only pushes updates that match.
 
-For workspace-wide visibility (recommended for proactive sessions), pass *no* filters except `--no-history`. You'll see every status change for every tx in the workspace — usually a low volume (0–10/min in a normal treasury).
+For workspace-wide visibility (recommended for proactive sessions), pass *no* filters. You'll see every status change for every tx in the workspace — usually a low volume (0–10/min in a normal treasury).
 
 ## Recipes
 
@@ -163,7 +151,7 @@ For workspace-wide visibility (recommended for proactive sessions), pass *no* fi
 
 ```bash
 # Background, output in JSONL, no snapshot.
-bron tx subscribe --no-history --output jsonl \
+bron tx subscribe --output jsonl \
   > /tmp/bron-tx-stream.log 2>&1
 ```
 
@@ -203,7 +191,7 @@ On Monitor frame F where F.status == "signing-required" and F.transactionType ==
 For session debugging — keep both Monitor + a tail-able log:
 
 ```bash
-bron tx subscribe --no-history --output jsonl \
+bron tx subscribe --output jsonl \
   | tee /tmp/bron-tx-stream.log
 ```
 
@@ -227,14 +215,14 @@ The CLI's transport handles reconnects transparently:
 For verbose tracing during development, add `--debug`:
 
 ```bash
-bron --debug tx subscribe --no-history --accountId <accountId>
+bron --debug tx subscribe --accountId <accountId>
 ```
 
 Stderr gets each ping, dial, frame received (with byte counts), reconnect attempts. Authorization tokens never appear in logs.
 
 ## Server-side replay on reconnect
 
-When the connection drops and reconnects, the server **replays the snapshot frame again** (matching the original `--no-history` setting). With `--no-history`, the snapshot is empty so duplicates aren't an issue. Without `--no-history`, you'll see every currently-matching transaction again on each reconnect — dedupe by `transactionId` if it matters.
+When the connection drops and reconnects, the server **replays the snapshot frame again** (matching the original setting — empty by default, populated if you passed `--with-history`). The default empty snapshot means reconnects produce no duplicate frames. With `--with-history` you'll see every currently-matching transaction again on each reconnect — dedupe by `transactionId` if it matters.
 
 ## Why not just an MCP "subscribe" tool?
 

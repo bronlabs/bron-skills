@@ -7,7 +7,7 @@ Bron is a non-custodial treasury management platform. The CLI is `bron`. It's a 
 ## Two surfaces — pick one per session
 
 - **`bron mcp` (MCP server)** — typed tool calls (`bron_tx_list`, `bron_tx_withdrawal`, `bron_tx_wait_for_state`, …) without shell quoting. Same auth, same data path, structured errors. Right when the agent host speaks MCP (Claude Code, Cursor, Cline, Claude Desktop, ChatGPT, …). Register once: `claude mcp add bron -- bron mcp`.
-- **`bash bron <verb>` (CLI)** — pipeable, JSONL output, stable exit codes. Right when there's no MCP host, when you need `--query`/`--columns` projection, or when the workflow uses shell tooling (`jq`, `xargs`, etc.).
+- **`bash bron <verb>` (CLI)** — pipeable, JSONL output, stable exit codes. Right when there's no MCP host, when you need `--columns` projection, or when the workflow uses shell tooling (`jq`, `xargs`, etc.).
 
 Pick once on the first turn and stay there for the session. Mixing surfaces mid-flow is a common source of confusion (the same backend operation reached two different ways tracks badly in conversation context).
 
@@ -82,10 +82,10 @@ These are state-changing and often irreversible. **Never** invoke them silently 
 ### Live updates
 
 ```bash
-bron tx subscribe --no-history --transactionStatuses signing-required,waiting-approval
+bron tx subscribe --transactionStatuses signing-required,waiting-approval
 ```
 
-Streams JSONL frames forever, transparent auto-reconnect on idle/network drops. `--no-history` skips the snapshot; without it the server replays every currently-matching transaction first.
+Streams JSONL frames forever, transparent auto-reconnect on idle/network drops. Live-only by default — pass `--with-history` if you also want a one-time replay of every currently-matching transaction on connect (useful for snapshot+tail scripts; rare for agent flows).
 
 ## Error handling
 
@@ -105,13 +105,13 @@ Stable exit codes:
 On non-zero exit the CLI prints the API error envelope to **stderr**:
 
 ```
-Error: <message>
-  code:    <STABLE_CODE>
-  trace:   <correlation-id>
-  details: <JSON>
+error: <message>
+  status: <http-status>
+  code:   <STABLE_CODE>
+  id:     <correlation-id>
 ```
 
-Branch on `code` (stable), not on the human message. Quote `trace` in any user-facing error report.
+Branch on `code` (stable), not on the human message. Quote `id` in any user-facing error report — same value the SDKs expose under longer programmatic names (Go `APIError.RequestID`, MCP error payload `requestId`), so logs join cleanly across surfaces.
 
 ## Output formats
 
@@ -128,11 +128,13 @@ Combine with `--columns` to project just what you need (works for json/yaml/json
 
 The active profile (`bron config show`) holds the JWK key file path, workspace ID, and base URL. For CI / one-off agent runs, prefer env vars:
 
-- `BRON_API_KEY` — raw JWK bytes (preferred for secret stores: `BRON_API_KEY=$(op read 'op://Personal/Bron/private-jwk') bron tx list`). The CLI strips the var from its environment after reading, so child processes don't inherit it.
-- `BRON_API_KEY_FILE` — path to the JWK private key (use when you want a managed file on disk).
-- `BRON_WORKSPACE_ID` — workspace ID
-- `BRON_BASE_URL` — override the default API host (rarely needed)
 - `BRON_PROFILE` — pick a different named profile from the config
+- `BRON_WORKSPACE_ID` — workspace ID
+- `BRON_API_KEY` — raw JWK bytes (preferred for secret stores: `BRON_API_KEY=$(op read 'op://Personal/Bron/private-jwk') bron tx list`); the CLI strips the var from its environment after reading, so child processes don't inherit it
+- `BRON_API_KEY_FILE` — path to the JWK private key (use when you want a managed file on disk)
+- `BRON_BASE_URL` — override the default API host (rarely needed)
+- `BRON_PROXY` — `http://[user:pass@]host:port` for outbound HTTP/HTTPS through a corporate proxy
+- `BRON_CONFIG` — path to a different `config.yaml` (default: `~/.config/bron/config.yaml`)
 
 Never log the contents of the JWK file. Never paste it into the agent's chat history.
 
@@ -147,6 +149,6 @@ Never log the contents of the JWK file. Never paste it into the agent's chat his
 
 ## See also
 
-- The full [Bron CLI documentation](https://developer.bron.org/api-reference/cli) on the dev portal.
-- [`bron help agents`](https://developer.bron.org/api-reference/cli/agents) — same content as this file, baked into the CLI itself.
+- The full [Bron CLI documentation](https://developer.bron.org/sdk/cli) on the dev portal.
+- [`bron help agents`](https://developer.bron.org/sdk/cli/agents) — same content as this file, baked into the CLI itself.
 - [`SECURITY.md`](SECURITY.md) for the trust model and allowed-tools rationale.

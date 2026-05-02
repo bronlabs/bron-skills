@@ -32,7 +32,7 @@ This symlinks every skill in `skills/` into `~/.claude/skills/`. Restart Claude 
 
 ### Other agents
 
-Phase 1 of this repo ships Claude Code skills only. Cursor (MDC), GitHub Copilot, and Aider mirrors land in [Phase 3](https://linear.app/bron/issue/BRO-520); a typed [MCP server](https://modelcontextprotocol.io) wrapping `bron-sdk-go` lands in [Phase 2](https://linear.app/bron/issue/BRO-519).
+Phase 1 of this repo ships Claude Code skills only. Cursor (MDC), GitHub Copilot, and Aider mirrors are on the roadmap; a typed [MCP server](https://modelcontextprotocol.io) wrapping `bron-sdk-go` ships today as `bron mcp` — see the [CLI MCP docs](https://developer.bron.org/sdk/cli/mcp).
 
 For now, agents that read [`AGENTS.md`](AGENTS.md) natively (Codex, Cursor, Copilot, Aider, …) get a usable subset by dropping a copy of this repo's `AGENTS.md` into a project that uses `bron`.
 
@@ -49,7 +49,7 @@ Each skill is a folder with `SKILL.md` (the loaded brief), `references/` (longer
 
 ## Try it in 60 seconds
 
-After running `install/install-claude.sh`, fire up Claude Code in a workspace that has `bron` configured (see [the CLI's quickstart](https://developer.bron.org/api-reference/cli)) and ask it:
+After running `install/install-claude.sh`, fire up Claude Code in a workspace that has `bron` configured (see [the CLI's quickstart](https://developer.bron.org/sdk/cli)) and ask it:
 
 > List every withdrawal awaiting approval in this workspace, then dry-run approving the smallest one.
 

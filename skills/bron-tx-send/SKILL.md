@@ -62,7 +62,7 @@ Three concrete modes:
 
 **Mode C — CLI only** (no MCP server registered):
 - Use `bash bron …` for everything.
-- Single-tx wait: there's no MCP, so use `bron tx subscribe --no-history` + `Monitor` on the bash process — see the `bron-tx-subscribe` skill.
+- Single-tx wait: there's no MCP, so use `bron tx subscribe` + `Monitor` on the bash process — see the `bron-tx-subscribe` skill.
 
 **Mode H — hybrid CLI + MCP** (both available):
 - Use `mcp__bron__bron_*` for all data operations (typed inputs, structured errors, no shell quoting).
@@ -103,7 +103,7 @@ expectedStates: ["completed","failed-on-blockchain","error","canceled","expired"
 
 Each call returns a typed `transaction` object with the live status — surface the transition to the user before issuing the next wait.
 
-In Mode C (no MCP), the equivalent is `bron tx subscribe --no-history --transactionId <id>` + `Monitor`. See the `bron-tx-subscribe` skill.
+In Mode C (no MCP), the equivalent is `bron tx subscribe --transactionId <id>` + `Monitor`. See the `bron-tx-subscribe` skill.
 
 ### Multi-tx fan-out / dashboard / operator session — `bron tx subscribe` (CLI only)
 
@@ -113,7 +113,7 @@ Only Mode H or C (CLI in PATH) supports this primitive today. In Mode M, fall ba
 
 ```text
 1. Bash run_in_background
-   command: bron tx subscribe --no-history --output jsonl > /tmp/bron-tx-stream.log 2>&1
+   command: bron tx subscribe --output jsonl > /tmp/bron-tx-stream.log 2>&1
    description: "Workspace-wide tx subscription for live state visibility"
    → capture bash_id
 
@@ -146,7 +146,7 @@ See the **`bron-tx-subscribe`** skill for reconnect semantics, filter options, a
 
 ## Two ways to drive the same flow
 
-The `bron mcp` subcommand exposes typed MCP tools that mirror every CLI verb. **Prefer MCP when available** — the agent gets typed inputs, structured error envelopes (`{code, status, trace, message}`), and one less context switch into bash. Fall back to CLI when running under an agent that doesn't speak MCP.
+The `bron mcp` subcommand exposes typed MCP tools that mirror every CLI verb. **Prefer MCP when available** — the agent gets typed inputs, structured error envelopes (`{status, code, message, requestId}`), and one less context switch into bash. Fall back to CLI when running under an agent that doesn't speak MCP.
 
 Same call, two surfaces:
 
@@ -346,10 +346,10 @@ MCP error envelope (returned as `isError: true` with structured payload):
 
 ```json
 {
-  "error": "<human-readable message>",
-  "status": <http-status>,
-  "code":  "<STABLE_CODE>",
-  "trace": "<correlation-id>"
+  "status":    <http-status>,
+  "code":      "<STABLE_CODE>",
+  "message":   "<human-readable message>",
+  "requestId": "<correlation-id>"
 }
 ```
 
@@ -384,5 +384,5 @@ If retrying, **reuse the same `externalId`** — the same call returns the exist
 - [`references/tx-types.md`](references/tx-types.md) — body shape per `transactionType`.
 - [`references/error-codes.md`](references/error-codes.md) — stable error code → cause → recovery.
 - [`bron-tx-subscribe`](../bron-tx-subscribe/SKILL.md) — full subscription + Monitor reference.
-- [Bron CLI docs](https://developer.bron.org/api-reference/cli) — full CLI reference.
-- [Idempotency contract](https://developer.bron.org/api-reference/cli/errors#idempotency-contract).
+- [Bron CLI docs](https://developer.bron.org/sdk/cli) — full CLI reference.
+- [Idempotency contract](https://developer.bron.org/sdk/cli/errors#idempotency-contract).

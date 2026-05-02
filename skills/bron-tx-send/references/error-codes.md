@@ -7,7 +7,7 @@ Reference material for `bron-tx-send`. Branch on these stable codes (`code:` fie
 | `code` | Cause | Recovery |
 |---|---|---|
 | `INVALID_KEY` | Public JWK not registered, or `kid` was revoked | Verify the key in Settings → API keys. Generate a fresh keypair and re-register if needed. |
-| `KEY_REVOKED` | The active `kid` was revoked in the UI | Run `bron auth keygen --file <path>`, register the public JWK, update the active profile. |
+| `KEY_REVOKED` | The active `kid` was revoked in the UI | Run `bron config init --key-file <new-path>` (CLI generates a fresh keypair, prints the public JWK to register, and after Enter calls `GET /workspaces` to validate the new key + auto-resolve `workspaceId`). Use `bron config set keyFile=<new-path>` if the existing profile needs to point at the new file. |
 | `WORKSPACE_NOT_FOUND` | The active profile's `workspace_id` doesn't match what the key was registered against | Run `bron config show` to verify; correct with `bron config set workspace=<id>` or `--workspace` override. |
 | `INSUFFICIENT_PERMISSIONS` | Member behind the API key doesn't have permission for this action | Reduce scope of the request, or escalate to an account that has the permission. |
 
@@ -45,4 +45,4 @@ Reference material for `bron-tx-send`. Branch on these stable codes (`code:` fie
 2. Read `details` — it carries machine-readable fields (`min`, `max`, `retryAfter`, `provided`) that tell you exactly what to fix.
 3. For transient codes (`SERVICE_UNAVAILABLE`, `RATE_LIMITED`) — retry with the same `--externalId`. Bron de-duplicates safely.
 4. For business-logic codes (`INSUFFICIENT_BALANCE`, `ADDRESS_NOT_WHITELISTED`) — surface the situation to the user with the `details`, don't silently fix-and-retry.
-5. Quote the `trace:` value when escalating to the Bron team. It joins your call across every backend service log.
+5. Quote the `id:` value (CLI) / `requestId` (MCP, SDK) when escalating to the Bron team. It joins your call across every backend service log.

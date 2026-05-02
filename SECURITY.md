@@ -35,7 +35,7 @@ These risks are real — see the [OWASP Agentic Skills Top 10](https://owasp.org
 
 4. **Run agent-driven flows on a non-production workspace first.** Bron supports separate workspaces; point an agent at a sandbox workspace until the flow is stable.
 
-5. **Watch the trace IDs.** Every API call produces a correlation ID. If something unexpected happens, the `trace:` value in the error envelope joins your call across every Bron service log.
+5. **Watch the IDs.** Every API call produces a correlation ID. If something unexpected happens, the `id:` value in the CLI error envelope (or `requestId` in the MCP / SDK payload) joins your call across every Bron service log.
 
 ## Supply-chain pinning policy
 
