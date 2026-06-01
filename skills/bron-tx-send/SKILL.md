@@ -133,7 +133,7 @@ Pick exactly one:
 |---|---|
 | `toAddressBookRecordId` | Saved address-book entry — preferred, validated by Bron. |
 | `toAccountId` | Internal transfer between two Bron accounts in the same workspace. |
-| `toBronTag` | Route to another Bron workspace by tag. |
+| `toWorkspaceTag` | Route to another Bron workspace by tag. |
 | `toAddress` | Raw on-chain address — only if the workspace allowlist permits. |
 
 If the user gives a raw address, look it up in the address book first (`bron-address-book` skill).
