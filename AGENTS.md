@@ -29,6 +29,8 @@ bron help <topic>                   # signing | profiles | output | body | error
 
 `--schema` is the contract you can rely on across `0.x`. Branch on it for tool discovery, not on `--help` text.
 
+On the MCP surface there's a cheaper orientation step: a single `bron_help` call returns the data model, any tool's response shape (resolved from the spec, with wire-correct field paths), and worked `jq` recipes. Call it once before composing analytical queries.
+
 ## Common patterns
 
 ### Listing transactions
@@ -44,6 +46,8 @@ JSONL is the easiest format for agent-side parsing:
 ```bash
 bron tx list --output jsonl --columns transactionId,status,params.amount
 ```
+
+**Intent vs settlement.** `params.amount` is what was *requested* (the quote); `_embedded.events[].amount` is what *actually settled on-chain*. For any financial total — volume, net flow, P&L — pass `--includeEvents` (CLI) / `includeEvents: true` (MCP) and aggregate `_embedded.events[]`, never `params.amount` (it diverges for swaps, bridges, intents, fiat and fee-bearing transfers). `params.amount` is right only when you genuinely want the requested amount, e.g. filtering withdrawals under a threshold.
 
 ### Creating a transaction
 
@@ -122,7 +126,9 @@ Branch on `code` (stable), not on the human message. Quote `id` in any user-faci
 | `--output yaml` | Hand-editing config, rare for agent flows |
 | `--output table` | Human review only — never grep table output |
 
-Combine with `--columns` to project just what you need (works for json/yaml/jsonl/table). Cuts agent context cost significantly.
+Combine with `--columns` to project just what you need (works for json/yaml/jsonl/table). Cuts agent context cost significantly. A dot-path crossing an array applies to every element (`--columns transactionId,_embedded.events.usdAmount`).
+
+On the MCP surface there's no shell to pipe through, so the equivalent shaping is built into every read tool as arguments: `fields` (the `--columns` analogue) and `jq` (a sandboxed gojq program run server-side for `select` / `group_by` / arithmetic). Both trim the reply before it reaches the agent's context — e.g. `{ "tool": "bron_tx_list", "arguments": { "includeEvents": true, "jq": "[.transactions[]._embedded.events[]? | (.usdAmount // \"0\" | tonumber)] | add" } }` returns just the total.
 
 ## Authentication
 

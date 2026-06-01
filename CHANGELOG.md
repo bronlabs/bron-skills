@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.3.0 — 2026-06-01
+
+Tracks bron-cli 0.3.11 — MCP response shaping and discovery.
+
+### `AGENTS.md`
+
+- Documents the MCP `fields` / `jq` tool arguments (server-side projection and
+  aggregation — the no-shell analogue of `--columns` / piping to `jq`).
+- New **intent vs settlement** rule: aggregate `_embedded.events[]` with
+  `includeEvents`, never `params.amount`, for any financial total.
+- Points agents at the new `bron_help` discovery tool as the cheap MCP
+  orientation step.
+
+### `bron-tx-read`
+
+- Adds server-side `jq`/`fields` aggregation examples and the `bron_help`
+  discovery tool alongside the existing saga-vs-events model.
+- Bumped `bron-cli-min` to 0.3.11.
+
+### `bron-balances-read`
+
+- Adds the MCP `jq` tool argument for server-side USD aggregation (no piping).
+- Bumped `bron-cli-min` to 0.3.11.
+
 ## v0.2.1 — 2026-05-01
 
 Three improvements driven by the first round of MCP usage feedback:

@@ -14,8 +14,8 @@ allowed-tools: |
   mcp__bron__bron_assets_list mcp__bron__bron_assets_get mcp__bron__bron_assets_prices
 metadata:
   vendor: bronlabs
-  version: "0.3.0"
-  bron-cli-min: "0.3.7"
+  version: "0.4.0"
+  bron-cli-min: "0.3.11"
 ---
 
 # Bron balances: read
@@ -60,6 +60,8 @@ bron balances list --nonEmpty true --embed prices --output jsonl \
 ```
 
 **`tonumber?` footgun.** The postfix `?` (jq error suppression) silently drops the whole object literal when applied to a null/non-numeric input — you lose rows without any sign of it. Use `(.path // "0" | tonumber)` for null-safe coercion. A workspace with mixed priced/unpriced balances aggregated through `tonumber?` will silently shrink to whatever subset has prices.
+
+On the MCP surface, push the aggregation server-side with the `jq` tool argument instead of piping — only the total returns into context: `mcp__bron__bron_balances_list { nonEmpty: true, embed: "prices", jq: "[.balances[]._embedded.usdValue // \"0\" | tonumber] | add" }`. The same null-safe coercion applies.
 
 When grouping for a portfolio view, key on `assetId` not `symbol` — USDC-on-ETH and USDC-on-BASE share a symbol but are different assets.
 

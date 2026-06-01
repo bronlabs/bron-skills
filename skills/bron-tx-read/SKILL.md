@@ -19,8 +19,8 @@ allowed-tools: |
   mcp__bron__bron_assets_list mcp__bron__bron_assets_get
 metadata:
   vendor: bronlabs
-  version: "0.1.0"
-  bron-cli-min: "0.3.7"
+  version: "0.2.0"
+  bron-cli-min: "0.3.11"
 ---
 
 # Bron transactions: read
@@ -57,6 +57,15 @@ mcp__bron__bron_tx_list { limit: 20, includeEvents: true,
 **`includeEvents: true` is mandatory by default — set it on every `bron_tx_list` / `bron tx list` call unless the user explicitly asked for status-only / count-only.** Without it the response only carries `params` (the *quote*, see "saga vs events" above), and any number you cite — amount, symbol, USD value, on-chain hash, slippage, fee — is the request, not what actually happened. For deposits `params` happens to match the event so the answer looks correct; for `withdrawal`, `swap-lifi`, `intents`, `bridge`, `fiat-*` it silently differs. The cost of `includeEvents: true` is one already-cached server-side join — there's no reason to skip it.
 
 `embed: "assets"` is **only useful when `includeEvents: false`** — events already carry `symbol`, `networkId`, `assetId`, so combining `includeEvents: true` with `embed: "assets"` is redundant. Pick one: `includeEvents: true` for analysis (default), `embed: "assets"` only when you need just the saga shell with resolved primary asset (rare). MCP `embed` accepts only `assets` — events go through `includeEvents`, not an `embed` token.
+
+**Aggregate on the server with `jq`.** Read tools accept a `jq` argument (a sandboxed gojq program) and a `fields` argument (dot-path projection). On MCP there's no shell to pipe through, so push the aggregation into the call — only the result enters context, not the raw list:
+
+```text
+mcp__bron__bron_tx_list { createdAtFrom: "2026-05-01", includeEvents: true,
+  jq: "[.transactions[]._embedded.events[]? | (.usdAmount // \"0\" | tonumber)] | add" }
+```
+
+New to the shape? `mcp__bron__bron_help { tool: "bron_tx_list" }` prints the response fields (wire-correct, so `_embedded.…`); `bron_help { topic: "tx-aggregation" }` prints these recipes.
 
 For one tx in isolation:
 
