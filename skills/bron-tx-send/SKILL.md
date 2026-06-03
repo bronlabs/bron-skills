@@ -13,19 +13,13 @@ license: MIT
 allowed-tools: |
   Bash(bron tx:*) Bash(bron config show:*) Bash(bron --help:*) Bash(bron --schema:*)
   Read Monitor
-  mcp__bron__bron_tx_list mcp__bron__bron_tx_get mcp__bron__bron_tx_events
-  mcp__bron__bron_tx_wait_for_state
+  mcp__bron__bron_help
+  mcp__bron__bron_tx_list mcp__bron__bron_tx_events mcp__bron__bron_tx_wait_for_state
   mcp__bron__bron_tx_create mcp__bron__bron_tx_dry_run mcp__bron__bron_tx_bulk_create
-  mcp__bron__bron_tx_withdrawal mcp__bron__bron_tx_allowance mcp__bron__bron_tx_bridge
-  mcp__bron__bron_tx_deposit mcp__bron__bron_tx_defi mcp__bron__bron_tx_defi_message
-  mcp__bron__bron_tx_intents mcp__bron__bron_tx_fiat_in mcp__bron__bron_tx_fiat_out
-  mcp__bron__bron_tx_stake_delegation mcp__bron__bron_tx_stake_undelegation
-  mcp__bron__bron_tx_stake_claim mcp__bron__bron_tx_stake_withdrawal
-  mcp__bron__bron_tx_address_creation mcp__bron__bron_tx_address_activation
+  mcp__bron__bron_tx_withdrawal
   mcp__bron__bron_tx_approve mcp__bron__bron_tx_decline mcp__bron__bron_tx_cancel
   mcp__bron__bron_tx_accept_deposit_offer mcp__bron__bron_tx_reject_outgoing_offer
-  mcp__bron__bron_accounts_list mcp__bron__bron_accounts_get
-  mcp__bron__bron_balances_list mcp__bron__bron_address_book_list
+  mcp__bron__bron_accounts_list mcp__bron__bron_balances_list mcp__bron__bron_address_book_list
 metadata:
   vendor: bronlabs
   version: "0.3.0"
@@ -101,6 +95,15 @@ mcp__bron__bron_tx_wait_for_state {
   timeoutSec: 30
 }
 ```
+
+Non-withdrawal types over MCP. The default `bron mcp` tool set keeps only `bron_tx_withdrawal` as a typed shortcut — for every other type use the generic `bron_tx_create` with `transactionType` + the per-type `params`:
+
+```text
+mcp__bron__bron_tx_create { transactionType: "allowance", accountId: "<id>",
+  externalId: "agent-task-…", body: { params: { … } } }
+```
+
+Call `mcp__bron__bron_help { tool: "bron_tx_allowance" }` (any `bron_tx_<type>` name) to get that type's `params` shape. Hosts launched with `bron mcp --tools all` also expose the per-type shortcuts directly.
 
 CLI fallback. Both `bron tx <type>` and `bron tx dry-run <type>` accept flat `--params.<field>=<value>` flags — symmetric pair, same flag set, same body shape. Use them with the same `externalId` so the dry-run pre-flight and the real submit are idempotent retries of the same logical operation.
 

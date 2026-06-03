@@ -18,7 +18,7 @@ metadata:
 
 # Bron address book
 
-The address book is the workspace's trusted recipient list, keyed by `(workspaceId, networkId, address)`. Bron validates withdrawals against it — passing `toAddressBookRecordId` is safer and more readable than a raw `toAddress`. Two `recordType`s: `address` (raw on-chain) and `tag` (Bron internal routing).
+The address book is the workspace's trusted recipient list, keyed by `(workspaceId, networkId, address)`. Bron validates withdrawals against it — passing `toAddressBookRecordId` is safer and more readable than a raw `toAddress`. Three `recordType`s: `address` (raw on-chain), `tag` (Bron internal routing), and `bank` (bank account, for fiat off-ramp via a regulated provider).
 
 Two surfaces drive the same operations: MCP (`mcp__bron__bron_address_book_*`) and CLI (`bron address-book …`). Pick one and stay there. See the `bron-tx-send` skill for the full surface-picker.
 
@@ -44,7 +44,7 @@ mcp__bron__bron_address_book_create {
 }
 ```
 
-CLI: `bron address-book create --name "..." --address "..." --networkId ETH --memo "..."`. Pass `--recordType tag` with a Bron tag in `--address` for internal routing.
+CLI: `bron address-book create --name "..." --address "..." --networkId ETH --memo "..."`. Pass `--recordType tag` with a Bron tag in `--address` for internal routing. For a `bank` record, pass `--recordType bank` with the `--bankDetails.*` fields — see `bron address-book create --schema` for the full `BankDetails` shape.
 
 The new `recordId` comes back in the response — pass it as `params.toAddressBookRecordId` in subsequent withdrawals (see `bron-tx-send`).
 

@@ -6,7 +6,7 @@ Bron is a non-custodial treasury management platform. The CLI is `bron`. It's a 
 
 ## Two surfaces — pick one per session
 
-- **`bron mcp` (MCP server)** — typed tool calls (`bron_tx_list`, `bron_tx_withdrawal`, `bron_tx_wait_for_state`, …) without shell quoting. Same auth, same data path, structured errors. Right when the agent host speaks MCP (Claude Code, Cursor, Cline, Claude Desktop, ChatGPT, …). Register once: `claude mcp add bron -- bron mcp`.
+- **`bron mcp` (MCP server)** — typed tool calls (`bron_tx_list`, `bron_tx_create`, `bron_tx_withdrawal`, `bron_tx_wait_for_state`, …) without shell quoting. Same auth, same data path, structured errors. Right when the agent host speaks MCP (Claude Code, Cursor, Cline, Claude Desktop, ChatGPT, …). Register once: `claude mcp add bron -- bron mcp`. The default tool set is curated (generic `bron_tx_create` replaces the per-type creators; `--tools all` registers everything). Call `bron_help` first for the data model and tool discovery.
 - **`bash bron <verb>` (CLI)** — pipeable, JSONL output, stable exit codes. Right when there's no MCP host, when you need `--columns` projection, or when the workflow uses shell tooling (`jq`, `xargs`, etc.).
 
 Pick once on the first turn and stay there for the session. Mixing surfaces mid-flow is a common source of confusion (the same backend operation reached two different ways tracks badly in conversation context).
