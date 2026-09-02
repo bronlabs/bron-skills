@@ -86,6 +86,8 @@ mcp__bron__bron_tx_withdrawal {
   toAddressBookRecordId: "<recordId>",
   feeLevel: "medium"
 }
+# A resubmit after a lost response answers 409 `already-exists` with the existing
+# transactionId under the error's `_embedded` — use that id, never a fresh externalId.
 
 # 4. Wait for terminal (or chain narrowing waits to surface every step).
 mcp__bron__bron_tx_wait_for_state {
