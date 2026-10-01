@@ -12,7 +12,7 @@ description: |
 license: MIT
 allowed-tools: |
   Bash(bron tx list:*) Bash(bron tx events:*) Bash(bron tx dry-run:*) Bash(bron tx --help:*) Bash(bron --help:*) Bash(bron --schema:*)
-  Read Monitor
+  Read
   mcp__bron__bron_help mcp__plugin_bron_bron__bron_help
   mcp__bron__bron_tx_list mcp__plugin_bron_bron__bron_tx_list mcp__bron__bron_tx_events mcp__plugin_bron_bron__bron_tx_events mcp__bron__bron_tx_wait_for_state mcp__plugin_bron_bron__bron_tx_wait_for_state
   mcp__bron__bron_tx_dry_run mcp__plugin_bron_bron__bron_tx_dry_run

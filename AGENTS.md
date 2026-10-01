@@ -138,7 +138,7 @@ The active profile (`bron config show`) holds the JWK key file path, workspace I
 - `BRON_WORKSPACE_ID` — workspace ID
 - The API key itself is set up once by the user with `bron config` (see the [CLI auth docs](https://developer.bron.org/sdk/cli/auth)). Never read, export or pass the key yourself.
 - `BRON_BASE_URL` — override the default API host (rarely needed)
-- `BRON_PROXY` — `http://[user:pass@]host:port` for outbound HTTP/HTTPS through a corporate proxy
+- `BRON_PROXY` — proxy URL for outbound HTTP/HTTPS through a corporate proxy
 - `BRON_CONFIG` — path to a different `config.yaml` (default: `~/.config/bron/config.yaml`)
 
 Never log the contents of the JWK file. Never paste it into the agent's chat history.
