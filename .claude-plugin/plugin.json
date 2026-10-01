@@ -11,6 +11,10 @@
   "homepage": "https://github.com/bronlabs/bron-skills",
   "repository": "https://github.com/bronlabs/bron-skills",
   "license": "MIT",
+  "privacyPolicyUrl": "https://bron.org/policy",
+  "termsOfServiceUrl": "https://bron.org/terms",
+  "documentationUrl": "https://support.bron.org/en/articles/17104034-connect-an-ai-agent-to-bron",
+  "supportUrl": "https://support.bron.org/en/articles/17104034-connect-an-ai-agent-to-bron",
   "keywords": [
     "bron",
     "treasury",
