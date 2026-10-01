@@ -9,9 +9,9 @@ description: |
 license: MIT
 allowed-tools: |
   Bash(bron balances:*) Bash(bron accounts:*) Bash(bron assets:*) Bash(bron --schema:*) Read
-  mcp__bron__bron_balances_list mcp__bron__bron_balances_get
-  mcp__bron__bron_accounts_list mcp__bron__bron_accounts_get
-  mcp__bron__bron_assets_list mcp__bron__bron_assets_get mcp__bron__bron_assets_prices
+  mcp__bron__bron_balances_list mcp__plugin_bron_bron__bron_balances_list mcp__bron__bron_balances_get mcp__plugin_bron_bron__bron_balances_get
+  mcp__bron__bron_accounts_list mcp__plugin_bron_bron__bron_accounts_list mcp__bron__bron_accounts_get mcp__plugin_bron_bron__bron_accounts_get
+  mcp__bron__bron_assets_list mcp__plugin_bron_bron__bron_assets_list mcp__bron__bron_assets_get mcp__plugin_bron_bron__bron_assets_get mcp__bron__bron_assets_prices mcp__plugin_bron_bron__bron_assets_prices
 metadata:
   vendor: bronlabs
   version: "0.4.0"

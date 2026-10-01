@@ -11,15 +11,12 @@ description: |
   + Monitor (CLI; preferred for multi-tx fan-out).
 license: MIT
 allowed-tools: |
-  Bash(bron tx:*) Bash(bron config show:*) Bash(bron --help:*) Bash(bron --schema:*)
+  Bash(bron tx list:*) Bash(bron tx events:*) Bash(bron tx dry-run:*) Bash(bron tx --help:*) Bash(bron --help:*) Bash(bron --schema:*)
   Read Monitor
-  mcp__bron__bron_help
-  mcp__bron__bron_tx_list mcp__bron__bron_tx_events mcp__bron__bron_tx_wait_for_state
-  mcp__bron__bron_tx_create mcp__bron__bron_tx_dry_run mcp__bron__bron_tx_bulk_create
-  mcp__bron__bron_tx_withdrawal
-  mcp__bron__bron_tx_approve mcp__bron__bron_tx_decline mcp__bron__bron_tx_cancel
-  mcp__bron__bron_tx_accept_deposit_offer mcp__bron__bron_tx_reject_outgoing_offer
-  mcp__bron__bron_accounts_list mcp__bron__bron_balances_list mcp__bron__bron_address_book_list
+  mcp__bron__bron_help mcp__plugin_bron_bron__bron_help
+  mcp__bron__bron_tx_list mcp__plugin_bron_bron__bron_tx_list mcp__bron__bron_tx_events mcp__plugin_bron_bron__bron_tx_events mcp__bron__bron_tx_wait_for_state mcp__plugin_bron_bron__bron_tx_wait_for_state
+  mcp__bron__bron_tx_dry_run mcp__plugin_bron_bron__bron_tx_dry_run
+  mcp__bron__bron_accounts_list mcp__plugin_bron_bron__bron_accounts_list mcp__bron__bron_balances_list mcp__plugin_bron_bron__bron_balances_list mcp__bron__bron_address_book_list mcp__plugin_bron_bron__bron_address_book_list
 metadata:
   vendor: bronlabs
   version: "0.3.0"

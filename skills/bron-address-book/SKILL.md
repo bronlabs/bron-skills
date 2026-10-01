@@ -7,9 +7,8 @@ description: |
   State-changing actions (create, delete) require human-in-the-loop confirmation.
 license: MIT
 allowed-tools: |
-  Bash(bron address-book:*) Bash(bron --schema:*) Read
-  mcp__bron__bron_address_book_list mcp__bron__bron_address_book_get
-  mcp__bron__bron_address_book_create mcp__bron__bron_address_book_delete
+  Bash(bron address-book list:*) Bash(bron address-book --help:*) Bash(bron --schema:*) Read
+  mcp__bron__bron_address_book_list mcp__plugin_bron_bron__bron_address_book_list mcp__bron__bron_address_book_get mcp__plugin_bron_bron__bron_address_book_get
 metadata:
   vendor: bronlabs
   version: "0.3.0"

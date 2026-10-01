@@ -136,8 +136,7 @@ The active profile (`bron config show`) holds the JWK key file path, workspace I
 
 - `BRON_PROFILE` — pick a different named profile from the config
 - `BRON_WORKSPACE_ID` — workspace ID
-- `BRON_API_KEY` — raw JWK bytes (preferred for secret stores: `BRON_API_KEY=$(op read 'op://Personal/Bron/private-jwk') bron tx list`); the CLI strips the var from its environment after reading, so child processes don't inherit it
-- `BRON_API_KEY_FILE` — path to the JWK private key (use when you want a managed file on disk)
+- The API key itself is set up once by the user with `bron config` (see the [CLI auth docs](https://developer.bron.org/sdk/cli/auth)). Never read, export or pass the key yourself.
 - `BRON_BASE_URL` — override the default API host (rarely needed)
 - `BRON_PROXY` — `http://[user:pass@]host:port` for outbound HTTP/HTTPS through a corporate proxy
 - `BRON_CONFIG` — path to a different `config.yaml` (default: `~/.config/bron/config.yaml`)

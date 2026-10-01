@@ -13,10 +13,10 @@ description: |
   For live streaming, use `bron-tx-subscribe`.
 license: MIT
 allowed-tools: |
-  Bash(bron tx:*) Bash(bron accounts:*) Bash(bron assets:*) Bash(bron --schema:*) Read
-  mcp__bron__bron_tx_list mcp__bron__bron_tx_get mcp__bron__bron_tx_events
-  mcp__bron__bron_accounts_list mcp__bron__bron_accounts_get
-  mcp__bron__bron_assets_list mcp__bron__bron_assets_get
+  Bash(bron tx list:*) Bash(bron tx get:*) Bash(bron tx events:*) Bash(bron accounts:*) Bash(bron assets:*) Bash(bron --schema:*) Read
+  mcp__bron__bron_tx_list mcp__plugin_bron_bron__bron_tx_list mcp__bron__bron_tx_get mcp__plugin_bron_bron__bron_tx_get mcp__bron__bron_tx_events mcp__plugin_bron_bron__bron_tx_events
+  mcp__bron__bron_accounts_list mcp__plugin_bron_bron__bron_accounts_list mcp__bron__bron_accounts_get mcp__plugin_bron_bron__bron_accounts_get
+  mcp__bron__bron_assets_list mcp__plugin_bron_bron__bron_assets_list mcp__bron__bron_assets_get mcp__plugin_bron_bron__bron_assets_get
 metadata:
   vendor: bronlabs
   version: "0.2.0"

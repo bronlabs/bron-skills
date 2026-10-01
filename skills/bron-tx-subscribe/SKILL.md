@@ -12,7 +12,7 @@ description: |
   Pair with the `Monitor` tool so each pushed frame wakes the agent immediately
   — no polling, no manual `tail`.
 license: MIT
-allowed-tools: Bash(bron tx subscribe:*) Bash(bron tx:*) Bash(bron --schema:*) Read Monitor
+allowed-tools: Bash(bron tx subscribe:*) Bash(bron tx list:*) Bash(bron --schema:*) Read Monitor
 metadata:
   vendor: bronlabs
   version: "0.3.0"
