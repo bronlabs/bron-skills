@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.4.0 — 2026-10-01
+
+Bron Desktop MCP — the repo becomes a Claude plugin for the directory.
+
+### Plugin
+
+- `.mcp.json` registers the `bron` MCP server, started as
+  `/Applications/Bron.app/Contents/MacOS/Bron --mcp-bridge`: the server built
+  into Bron Desktop, authorized with OAuth and Touch ID, read-only by default.
+- `plugin.json`: renamed to **Bron**, version synced with the repo, every
+  folder under `skills/` is loaded (`bron-tx-read` was missing), and the
+  non-standard `compatibility` key is gone.
+
+### `bron-desktop-mcp`
+
+- New skill: first-call order (`bron_workspaces_list`, then `bron_help`), the
+  tool set of each access level, settlement-vs-quote, confirm-before-write and
+  connection troubleshooting.
+
+### README
+
+- Bron Desktop MCP requirements, access levels and a data and privacy section.
+
 ## v0.3.0 — 2026-06-01
 
 Tracks bron-cli 0.3.11 — MCP response shaping and discovery.

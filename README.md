@@ -1,8 +1,9 @@
-# Bron Skills
+# Bron
 
-Agent skill bundle for the [Bron CLI](https://github.com/bronlabs/bron-cli) — teaches AI coding agents (Claude Code, Codex, Cursor, Aider, GitHub Copilot, etc.) how to drive `bron` safely and productively.
+Claude plugin and agent skill bundle for [Bron](https://bron.org), a non-custodial treasury management platform for digital assets.
 
-Bron is a non-custodial treasury management platform for digital assets. The CLI is a Go binary that exposes every API endpoint 1:1; this repo packages **what an agent needs to know** to use it well: when to dry-run vs send, idempotency contracts, error handling, output projection, and the `bron tx subscribe` live-event flow.
+- **Bron Desktop MCP** — the plugin connects Claude to the MCP server built into Bron Desktop, so you can ask about your treasury in plain language: balances, transactions, deposit addresses, address book, stakes. Authorization is OAuth plus Touch ID in the app; you choose the workspace, the access level and the accounts.
+- **Skills** — `SKILL.md` packages that teach an agent to read settlements instead of quotes, page before totalling, and confirm every state change. They work with the desktop MCP server and with the [Bron CLI](https://github.com/bronlabs/bron-cli).
 
 ## What's in here
 
@@ -33,10 +34,12 @@ git clone https://github.com/bronlabs/bron-skills ~/src/bron-skills
 
 Symlinks every skill into `~/.codex/skills/` and `AGENTS.md` into `~/.codex/AGENTS.md`. Restart Codex to pick them up. Override the install root with `CODEX_HOME=...`.
 
-### Anthropic plugin marketplace (coming soon)
+### Claude plugin
 
-```
-/plugin install bron@bronlabs/bron-skills
+Install **Bron** from the plugin directory in Claude (**Customize → Plugins**). A plugin added there also appears in your Claude Code sessions. To try a local checkout in Claude Code for one session:
+
+```bash
+claude --plugin-dir ~/src/bron-skills
 ```
 
 ### Other agents
@@ -45,10 +48,39 @@ Cursor (MDC), GitHub Copilot, and Aider mirrors are on the roadmap; a typed [MCP
 
 For now, agents that read [`AGENTS.md`](AGENTS.md) natively (Codex, Cursor, Copilot, Aider, …) get a usable subset by dropping a copy of this repo's `AGENTS.md` into a project that uses `bron`.
 
+## Bron Desktop MCP server
+
+The plugin registers one MCP server, `bron`, started as:
+
+```
+/Applications/Bron.app/Contents/MacOS/Bron --mcp-bridge
+```
+
+**Requirements:** macOS, Bron Desktop installed in `/Applications`, open and signed in. The server runs in Claude Code and in Cowork sessions on your computer. Regular claude.ai chats run connectors in the cloud and can't reach an app on your Mac, so there the plugin loads its skills only.
+
+**Connecting:** on the first Bron question the app shows a consent screen. Pick the workspace, the access level and the accounts, then confirm with Touch ID. See [Connect an AI agent to Bron](https://support.bron.org/en/articles/17104034-connect-an-ai-agent-to-bron) for screenshots and other AI apps.
+
+**Access levels:**
+
+- **Read only** — accounts, balances, portfolio, transactions and their events, limits, address book, deposit addresses, assets, prices, networks, stakes. No actions.
+- **Manage** — Read only plus dry-running, creating and cancelling transactions and intents, and managing the address book.
+
+Neither level can approve, decline or sign. A transaction the agent prepares waits for your signature in Bron, and your workspace approval rules still apply. Keys never leave your devices.
+
+**Staying in control:** **Settings → AI agents** in Bron Desktop lists connected agents. **Pause all agents** blocks every call until you resume; **Revoke** on an agent card removes its access immediately.
+
+## Data and privacy
+
+- The plugin itself runs no code, collects nothing and sends nothing anywhere. It ships Markdown skills and one MCP server entry that starts the Bron Desktop app you already have installed.
+- The bridge talks only to Bron Desktop's local endpoint on `127.0.0.1`, which is not reachable from outside your computer. Bron Desktop then calls the Bron API with your signed-in session, exactly as the app does for you.
+- Whatever the agent reads becomes part of your conversation with Claude and is handled under [Anthropic's privacy policy](https://www.anthropic.com/legal/privacy). Grant the narrowest access level and accounts that do the job.
+- Bron's own handling of your data: [Bron privacy policy](https://bron.org/policy).
+
 ## What the skills cover
 
 | Skill | When to use it |
 |---|---|
+| [`bron-desktop-mcp`](skills/bron-desktop-mcp/) | Bron Desktop MCP: first-call order, what each access level allows, settlement-vs-quote, confirm-before-write, connection troubleshooting. |
 | [`bron-tx-send`](skills/bron-tx-send/) | Create / approve / decline / cancel transactions. Includes idempotency contract, dry-run pre-flight, and human-in-the-loop guardrails for state-changing ops. |
 | [`bron-tx-read`](skills/bron-tx-read/) | List, get, and analyse transactions. Teaches the saga-vs-events mental model, `--embed events` for real money movement, and ready-made `jq` aggregations. |
 | [`bron-balances-read`](skills/bron-balances-read/) | List account balances, project to specific columns, fold USD totals in via `--embed prices`. |

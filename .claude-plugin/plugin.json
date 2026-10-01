@@ -1,9 +1,9 @@
 {
   "$schema": "https://schema.anthropic.com/claude-plugin/v1.json",
   "name": "bron",
-  "displayName": "Bron CLI Skills",
-  "description": "Teach AI coding agents to use the Bron CLI safely and productively. Covers transactions, balances, address book, and live subscribe streams. Bron is a non-custodial treasury management platform for digital assets.",
-  "version": "0.1.0",
+  "displayName": "Bron",
+  "description": "Ask about your Bron treasury in plain language: balances, transactions, addresses and stakes. Connects to the MCP server built into Bron Desktop (OAuth + Touch ID, per-account grants, read-only by default) and teaches the agent to read settlements correctly and confirm every state change. Bron is a non-custodial treasury management platform for digital assets.",
+  "version": "0.4.0",
   "author": {
     "name": "Bron Labs",
     "url": "https://bron.org"
@@ -15,20 +15,10 @@
     "bron",
     "treasury",
     "non-custodial",
+    "mcp",
     "cli",
     "crypto",
     "blockchain",
-    "websocket",
     "automation"
-  ],
-  "skills": [
-    "skills/bron-tx-send",
-    "skills/bron-balances-read",
-    "skills/bron-address-book",
-    "skills/bron-tx-subscribe"
-  ],
-  "compatibility": {
-    "claudeCode": ">=2.0.0",
-    "bronCli": ">=0.3.6"
-  }
+  ]
 }

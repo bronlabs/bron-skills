@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "bron": {
+      "command": "/Applications/Bron.app/Contents/MacOS/Bron",
+      "args": ["--mcp-bridge"]
+    }
+  }
+}
