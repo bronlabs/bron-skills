@@ -2,30 +2,31 @@
 
 Claude plugin and agent skill bundle for [Bron](https://bron.org), a non-custodial treasury management platform for digital assets.
 
-- **Bron Desktop MCP** — the plugin connects Claude to the MCP server built into Bron Desktop, so you can ask about your treasury in plain language: balances, transactions, deposit addresses, address book, stakes. Authorization is OAuth plus Touch ID in the app; you choose the workspace, the access level and the accounts.
-- **Skills** — `SKILL.md` packages that teach an agent to read settlements instead of quotes, page before totalling, and confirm every state change. They work with the desktop MCP server and with the [Bron CLI](https://github.com/bronlabs/bron-cli).
+- **The Bron plugin** (`.claude-plugin/`, `.mcp.json`, `skills/`) — connects Claude to the MCP server built into Bron Desktop, so you can ask about your treasury in plain language: balances, transactions, deposit addresses, address book, stakes. Authorization is OAuth plus Touch ID in the app; you choose the workspace, the access level and the accounts. Its skill teaches the agent to read settlements instead of quotes, page before totalling, and confirm every state change.
+- **Bron CLI skills** (`cli-skills/`) — `SKILL.md` packages for agents that drive the [Bron CLI](https://github.com/bronlabs/bron-cli) with an API key. They are not part of the plugin; install them with the scripts in `install/`.
 
 ## What's in here
 
 | Path | What it is | Who reads it |
 |---|---|---|
-| [`skills/`](skills/) | Canonical [`SKILL.md`](https://agentskills.io/specification) packages, one per workflow | Claude Code, Codex, Gemini CLI, JetBrains Junie, and any other tool implementing the SKILL.md open standard |
+| [`skills/`](skills/) | The plugin's skill for the Bron Desktop MCP server | Claude, through the plugin |
+| [`cli-skills/`](cli-skills/) | Canonical [`SKILL.md`](https://agentskills.io/specification) packages for the Bron CLI, one per workflow | Claude Code, Codex, Gemini CLI, JetBrains Junie, and any other tool implementing the SKILL.md open standard |
 | [`AGENTS.md`](AGENTS.md) | Cross-agent project memory ([`agents.md`](https://agents.md/) standard) | Codex, Cursor, Copilot, Claude Code, Aider, Junie, Zed, Warp, Gemini CLI, Devin, Windsurf, OpenHands, OpenCode |
 | [`SECURITY.md`](SECURITY.md) | Trust model, allowed-tools rationale, supply-chain pinning policy | You, before installing |
 | [`install/`](install/) | One installer per agent — symlinks the right files into the right paths | You |
 
 ## Install
 
-### Claude Code
+### Bron CLI skills — Claude Code
 
 ```bash
 git clone https://github.com/bronlabs/bron-skills ~/src/bron-skills
 ~/src/bron-skills/install/install-claude.sh
 ```
 
-This symlinks every skill in `skills/` into `~/.claude/skills/`. Restart Claude Code (or run `/skills reload`) and the skills appear under `bron-*`.
+This symlinks every skill in `cli-skills/` into `~/.claude/skills/`. Restart Claude Code (or run `/skills reload`) and the skills appear under `bron-*`.
 
-### Codex
+### Bron CLI skills — Codex
 
 ```bash
 git clone https://github.com/bronlabs/bron-skills ~/src/bron-skills
@@ -71,9 +72,8 @@ Neither level can approve, decline or sign. A transaction the agent prepares wai
 
 ## Data and privacy
 
-- The plugin itself runs no code, collects nothing and sends nothing anywhere. It ships Markdown skills and one MCP server entry that starts the Bron Desktop app you already have installed.
+- The plugin itself runs no code, collects nothing and sends nothing anywhere. It ships one Markdown skill and one MCP server entry that starts the Bron Desktop app you already have installed.
 - The bridge talks only to Bron Desktop's local endpoint on `127.0.0.1`, which is not reachable from outside your computer. Bron Desktop then calls the Bron API with your signed-in session, exactly as the app does for you.
-- The CLI skills run the `bron` CLI you installed yourself; it calls the Bron API at `https://api.bron.org` with the API key you configured.
 - Whatever the agent reads becomes part of your conversation with Claude and is handled under [Anthropic's privacy policy](https://www.anthropic.com/legal/privacy). Grant the narrowest access level and accounts that do the job.
 - Bron's own handling of your data: [Bron privacy policy](https://bron.org/policy).
 
@@ -82,11 +82,11 @@ Neither level can approve, decline or sign. A transaction the agent prepares wai
 | Skill | When to use it |
 |---|---|
 | [`bron-desktop-mcp`](skills/bron-desktop-mcp/) | Bron Desktop MCP: first-call order, what each access level allows, settlement-vs-quote, confirm-before-write, connection troubleshooting. |
-| [`bron-tx-send`](skills/bron-tx-send/) | Create / approve / decline / cancel transactions. Includes idempotency contract, dry-run pre-flight, and human-in-the-loop guardrails for state-changing ops. |
-| [`bron-tx-read`](skills/bron-tx-read/) | List, get, and analyse transactions. Teaches the saga-vs-events mental model, `--embed events` for real money movement, and ready-made `jq` aggregations. |
-| [`bron-balances-read`](skills/bron-balances-read/) | List account balances, project to specific columns, fold USD totals in via `--embed prices`. |
-| [`bron-address-book`](skills/bron-address-book/) | Manage saved addresses; route withdrawals via `toAddressBookRecordId` instead of raw addresses. |
-| [`bron-tx-subscribe`](skills/bron-tx-subscribe/) | Stream live transaction updates over WebSocket. JSONL pipelines, wait-for-completion patterns, auto-reconnect contract. |
+| [`bron-tx-send`](cli-skills/bron-tx-send/) | Create / approve / decline / cancel transactions. Includes idempotency contract, dry-run pre-flight, and human-in-the-loop guardrails for state-changing ops. |
+| [`bron-tx-read`](cli-skills/bron-tx-read/) | List, get, and analyse transactions. Teaches the saga-vs-events mental model, `--embed events` for real money movement, and ready-made `jq` aggregations. |
+| [`bron-balances-read`](cli-skills/bron-balances-read/) | List account balances, project to specific columns, fold USD totals in via `--embed prices`. |
+| [`bron-address-book`](cli-skills/bron-address-book/) | Manage saved addresses; route withdrawals via `toAddressBookRecordId` instead of raw addresses. |
+| [`bron-tx-subscribe`](cli-skills/bron-tx-subscribe/) | Stream live transaction updates over WebSocket. JSONL pipelines, wait-for-completion patterns, auto-reconnect contract. |
 
 Each skill is a folder with `SKILL.md` (the loaded brief), `references/` (longer material the agent loads on demand), and `assets/examples/` where helpful.
 
@@ -132,7 +132,7 @@ Semver on the repo. New skills bump minor; backwards-incompatible content change
 
 ## Contributing
 
-Issues and PRs welcome. New skills should follow the [`skills/bron-tx-send/`](skills/bron-tx-send/) layout as a template — frontmatter, ≤ 500 lines in `SKILL.md`, longer reference material under `references/`.
+Issues and PRs welcome. New skills should follow the [`cli-skills/bron-tx-send/`](cli-skills/bron-tx-send/) layout as a template — frontmatter, ≤ 500 lines in `SKILL.md`, longer reference material under `references/`.
 
 ## License
 

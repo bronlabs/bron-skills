@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Symlink every skill under skills/ into ~/.codex/skills/ and AGENTS.md into
+# Symlink every skill under cli-skills/ into ~/.codex/skills/ and AGENTS.md into
 # ~/.codex/AGENTS.md so Codex picks them up. Idempotent — re-running updates
 # the symlinks.
 #
@@ -13,7 +13,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SKILLS_SRC="$REPO_ROOT/skills"
+SKILLS_SRC="$REPO_ROOT/cli-skills"
 AGENTS_SRC="$REPO_ROOT/AGENTS.md"
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 SKILLS_DEST="$CODEX_HOME/skills"

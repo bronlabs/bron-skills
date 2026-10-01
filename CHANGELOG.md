@@ -23,6 +23,13 @@ Bron Desktop MCP — the repo becomes a Claude plugin for the directory.
 
 - Bron Desktop MCP requirements, access levels and a data and privacy section.
 
+### Layout
+
+- The plugin ships only the Bron Desktop MCP server and its skill. The Bron
+  CLI skills (`bron-tx-send`, `bron-tx-read`, `bron-balances-read`,
+  `bron-address-book`, `bron-tx-subscribe`) moved to `cli-skills/`; the
+  `install/` scripts link them from there.
+
 ## v0.3.0 — 2026-06-01
 
 Tracks bron-cli 0.3.11 — MCP response shaping and discovery.

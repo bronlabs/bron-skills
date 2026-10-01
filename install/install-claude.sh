@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Symlink every skill under skills/ into ~/.claude/skills/ so Claude Code
+# Symlink every skill under cli-skills/ into ~/.claude/skills/ so Claude Code
 # loads them. Idempotent — re-running updates the symlinks.
 #
 # Usage:
@@ -12,7 +12,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SKILLS_SRC="$REPO_ROOT/skills"
+SKILLS_SRC="$REPO_ROOT/cli-skills"
 SKILLS_DEST="${CLAUDE_HOME:-$HOME/.claude}/skills"
 
 mode=install
