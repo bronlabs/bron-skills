@@ -73,6 +73,7 @@ Neither level can approve, decline or sign. A transaction the agent prepares wai
 
 - The plugin itself runs no code, collects nothing and sends nothing anywhere. It ships Markdown skills and one MCP server entry that starts the Bron Desktop app you already have installed.
 - The bridge talks only to Bron Desktop's local endpoint on `127.0.0.1`, which is not reachable from outside your computer. Bron Desktop then calls the Bron API with your signed-in session, exactly as the app does for you.
+- The CLI skills run the `bron` CLI you installed yourself; it calls the Bron API at `https://api.bron.org` with the API key you configured.
 - Whatever the agent reads becomes part of your conversation with Claude and is handled under [Anthropic's privacy policy](https://www.anthropic.com/legal/privacy). Grant the narrowest access level and accounts that do the job.
 - Bron's own handling of your data: [Bron privacy policy](https://bron.org/policy).
 
